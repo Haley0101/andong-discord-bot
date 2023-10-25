@@ -83,6 +83,29 @@ class users_cs(commands.Cog):
     #     print(boardList)
     #     await interaction.response.send_message(f"{boardList}", ephemeral=True)
 
+    @app_commands.command(name='테스트')
+    async def adminTest(self, interaction: Interaction):
+        if not interaction.user.guild_permissions.administrator:
+            await interaction.response.send_message("운영팀이 아닙니다.", ephemeral=True)
+        
+        for user in interaction.guild.members:
+            try:
+                print(user.display_name.split('_'))
+                name = user.display_name.split('_')
+            except:
+                pass
+            db, SQL = get_SQL()
+            if db == False:
+                print("DB CONNECT ERROR")
+            try:
+                SQL.execute(
+                    f"UPDATE USER_DATA SET DISCORD_ID = '{user.id}' WHERE USER_NAME = '{name[1]}' and SCHOOL_TYPE = '{name[0]}'"
+                )
+                db.commit()
+                print(f'{name[0]} - {name[1]} 디스코드 아이디 업데이트 완료')
+            except Exception as e:
+                print(e)
+
 
 async def setup(client: commands.Bot):
     await client.add_cog(users_cs(client))
