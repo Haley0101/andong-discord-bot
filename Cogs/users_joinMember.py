@@ -16,7 +16,7 @@ class certification_btn(discord.ui.View):
                 placeholder="예시) 컴퓨터공학과",
                 default="",
                 required=True,
-                max_length=5,
+                max_length=10,
             )
             user_ClassNum = ui.TextInput(
                 label="학번",
@@ -24,7 +24,7 @@ class certification_btn(discord.ui.View):
                 placeholder="예시) 20230101",
                 default="",
                 required=True,
-                max_length=4,
+                max_length=9,
             )
             user_Name = ui.TextInput(
                 label="이름",
@@ -44,7 +44,7 @@ class certification_btn(discord.ui.View):
 
                 try:
                     SQL.execute(
-                        f"SELECT * FROM USER_DATA WHERE CLASS_NUM = '{str(self.user_ClassNum)}' and USER_NAME = '{str(self.user_Name)}' and SCHOOL_NAME = '{str(self.user_SchoolName)}'"
+                        f"SELECT * FROM USER_DATA WHERE CLASS_NUM = '{str(self.user_ClassNum)}' and USER_NAME = '{str(self.user_Name)}' and SCHOOL_TYPE = '{str(self.user_SchoolType)}'"
                     )
                     ResultData = SQL.fetchone()
                     if ResultData == None or ResultData == False:
@@ -55,7 +55,7 @@ class certification_btn(discord.ui.View):
                         discordId=interaction.user.id,
                         classNum=str(self.user_ClassNum),
                         userName=str(self.user_Name),
-                        schoolName=str(self.user_SchoolName),
+                        schoolType=str(self.user_SchoolType),
                     )
                     if updateDiscordIdResult != True:
                         await sendLogging(interaction.client, "ERROR - `users_joinMember.py` 디스코드 아이디 업데이트 되지 않음")
@@ -64,23 +64,22 @@ class certification_btn(discord.ui.View):
                     if str(self.user_ClassNum) == "7966":
                         await interaction.user.add_roles(interaction.guild.get_role((1143519495550410872)))  
                         await interaction.user.edit(
-                            nick=f"{self.user_SchoolType}_{self.user_Name}교사"
+                            nick=f"{self.user_SchoolType}_{self.user_Name}교수"
                         )
                         await interaction.response.send_message(
-                            f"안녕하세요. {interaction.user.mention}!! \n{self.user_SchoolType} {self.user_Name} 선생님!!",
+                            f"안녕하세요. {interaction.user.mention}!! \n{self.user_SchoolType} {self.user_Name} 교수님!!",
                             ephemeral=True,
                         )
-                        await interaction.client.get_channel(1143589941469782026).send(
-                            f"Log - {self.user_ClassNum} | {self.user_Name}({self.user_ClassNum}) 인증 완료 되었습니다."
+                        await interaction.client.get_channel(1166636388070989874).send(
+                            f"Log - {self.user_SchoolType} | {self.user_Name}({self.user_ClassNum}) 인증 완료 되었습니다."
                         )
 
 
                     try:
                         await interaction.user.add_roles(interaction.guild.get_role((int(roleJsonData["학생"]))))
-                        await interaction.user.add_roles(interaction.guild.get_role((int(roleJsonData[ResultData[3]])))) # 학교명 역할
                     except Exception as e:
                         print(e)
-                        sendLogging(interaction.client, f"ERROR - {e}")
+                        await sendLogging(interaction.client, f"ERROR - {e}")
                         pass
                     
                     await interaction.user.edit(
@@ -90,8 +89,8 @@ class certification_btn(discord.ui.View):
                         f"안녕하세요. {interaction.user.mention}!! \n{self.user_SchoolType} / {self.user_ClassNum} / {self.user_Name}님!!",
                         ephemeral=True,
                     )
-                    await interaction.client.get_channel(1143589941469782026).send(
-                        f"Log - {self.user_ClassNum} | {self.user_Name}({self.user_ClassNum}) 인증 완료 되었습니다."
+                    await interaction.client.get_channel(1166636388070989874).send(
+                        f"Log - {self.user_SchoolType} | {self.user_Name}({self.user_ClassNum}) 인증 완료 되었습니다."
                     )
 
                 except Exception as e:

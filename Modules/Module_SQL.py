@@ -10,36 +10,18 @@ def get_SQL():
         return False, False
 
 
-async def updateDiscordId(discordId, classNum, userName, schoolName):
+async def updateDiscordId(discordId, classNum, userName, schoolType):
     db, SQL = get_SQL()
     if db == False:
         return False
     try:
         SQL.execute(
-            f"UPDATE USER_DATA SET DISCORD_ID = '{discordId}' WHERE CLASS_NUM = '{str(classNum)}' and USER_NAME = '{str(userName)}' and SCHOOL_NAME = '{str(schoolName)}'"
+            f"UPDATE USER_DATA SET DISCORD_ID = '{discordId}' WHERE CLASS_NUM = '{str(classNum)}' and USER_NAME = '{str(userName)}' and SCHOOL_TYPE = '{str(schoolType)}'"
         )
         db.commit()
         return True
     except:
         return False
-
-
-async def insertCommentList(discordId, msgId, channelId):
-    db, SQL = get_SQL()
-    if db == False:
-        return False, "DB 연결 안됌"
-    try:
-        SQL.execute(
-            f"INSERT INTO COMMENT_LIST(userUid, msgId, channelId) VALUES({discordId}, {msgId}, {channelId})"
-        )
-        db.commit()
-        return True, "정상적으로 완료 댐"
-    
-    except sqlite3.Error as e:
-        return False, "이미 다른 게시글에 댓글을 작성 하였습니다." 
-
-    except Exception as e:
-        return False, f"{e}"
 
 
 async def insertTeamBuildBoardId(threadId, title, userId, tagName):
@@ -120,19 +102,19 @@ def get_userInfo(discordId):
         return False
 
 
-def get_teamId(discordId):
-    db, SQL = get_SQL()
-    if db == False:
-        return False
-    try:
-        SQL.execute(f"SELECT TEAM_ID FROM USER_DATA WHERE DISCORD_ID = '{discordId}'")
-        result = SQL.fetchone()[0]
-        if result == None:
-            return False
-        else:
-            return result
-    except:
-        return False
+# def get_teamId(discordId):
+#     db, SQL = get_SQL()
+#     if db == False:
+#         return False
+#     try:
+#         SQL.execute(f"SELECT TEAM_ID FROM USER_DATA WHERE DISCORD_ID = '{discordId}'")
+#         result = SQL.fetchone()[0]
+#         if result == None:
+#             return False
+#         else:
+#             return result
+#     except:
+#         return False
 
 
 def get_teamName(teamId):
@@ -204,21 +186,21 @@ async def insertUserData(teamId, title, users):
     #     return False, f"팀원 수가 맞지 않습니다. 4명으로 맞춰주세요."
 
 
-async def updateUserDataTeamID(teamId, users):
-    db, SQL = get_SQL()
-    if db == False:
-        return "서버와의 통신이 불안정 합니다."
+# async def updateUserDataTeamID(teamId, users):
+#     db, SQL = get_SQL()
+#     if db == False:
+#         return "서버와의 통신이 불안정 합니다."
     
-    try:
-        for i in range(len(users)):
-            SQL.execute(f"UPDATE USER_DATA SET TEAM_ID = '{teamId}' WHERE CLASS_NUM = '{get_classNum(users[i].id)}' and USER_NAME = '{get_userName(users[i].id)}' and SCHOOL_NAME = '{get_schoolType(users[i].id)}'")
+#     try:
+#         for i in range(len(users)):
+#             SQL.execute(f"UPDATE USER_DATA SET TEAM_ID = '{teamId}' WHERE CLASS_NUM = '{get_classNum(users[i].id)}' and USER_NAME = '{get_userName(users[i].id)}' and SCHOOL_NAME = '{get_schoolType(users[i].id)}'")
         
-        # SQL.execute(f"UPDATE USER_DATA SET TEAM_ID = '{teamId}' WHERE CLASS_NUM = '{get_classNum(leaderUser.id)}' and USER_NAME = '{get_userName(leaderUser.id)}' and SCHOOL_NAME = '{get_schoolName(leaderUser.id)}'")
-        db.commit()
-        return True
-    except Exception as e:
-        print(e)
-        return str(e)
+#         # SQL.execute(f"UPDATE USER_DATA SET TEAM_ID = '{teamId}' WHERE CLASS_NUM = '{get_classNum(leaderUser.id)}' and USER_NAME = '{get_userName(leaderUser.id)}' and SCHOOL_NAME = '{get_schoolName(leaderUser.id)}'")
+#         db.commit()
+#         return True
+#     except Exception as e:
+#         print(e)
+#         return str(e)
 
 async def adminCoin(type, value, teamId):
     db, SQL = get_SQL()
