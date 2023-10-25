@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin DB-View</title>
+    <style>
+        table {
+            width: 100%;
+            border: 1px solid #444444;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #444444;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <table class="table">
+        {% if ((dbName == "user_data") or (dbName == "USER_DATA") or (dbName == "user-data")) %}
+            <tr>
+                <th>DISCORD_ID</th>
+                <th>USER_NAME</th>
+                <th>CLASS_NUM</th>
+                <th>SCHOOL_TYPE</th>
+                <th>TEAM_ID</th>
+            </tr>
+            {% for obj in data_list%}
+            <tbody>
+                <tr>
+                    <td>{{obj.DISCORD_ID}}</td>
+                    <td>{{obj.SCHOOL_TYPE}}</td>
+                    <td>{{obj.USER_NAME}}</td>
+                    <td>{{obj.CLASS_NUM}}</td>
+                    <td>{{obj.TEAM_ID}}</td>
+                </tr>
+            </tbody>
+            {% endfor %}
+        {% elif ((dbName == "team_data") or (dbName == "TEAM_DATA") or (dbName == "team-data")) %}
+            <tr>
+                <th>teamId</th>
+                <th>teamTitle</th>
+                <th>teamLeader</th>
+                <th>teamMember1</th>
+                <th>teamMember2</th>
+                <th>teamMember3</th>
+            </tr>
+            {% for obj in data_list%}
+            <tbody>
+                <tr>
+                    <td>{{obj.teamId}}</td>
+                    <td>{{obj.teamTitle}}</td>
+                    <td>{{obj.teamLeader}}</td>
+                    <td>{{obj.teamMember1}}</td>
+                    <td>{{obj.teamMember2}}</td>
+                    <td>{{obj.teamMember3}}</td>
+                </tr>
+            </tbody>
+            {% endfor %}
+        {% endif %}
+    </table>
+</body>
+
+</html>
