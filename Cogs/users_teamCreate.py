@@ -34,6 +34,7 @@ class teamCreate(commands.Cog):
 
         teamId = randomNum()
         members.append(interaction.user)
+        membersDiscordIds.append(interaction.user.id)
 
         schoolTypeList = [get_schoolType(membersDiscordIds[0]), get_schoolType(membersDiscordIds[1]), get_schoolType(membersDiscordIds[2]), get_schoolType(membersDiscordIds[3])]
         checkMultipleDuplicatesResult = check_multiple_duplicates(schoolTypeList)

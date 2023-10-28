@@ -4,7 +4,7 @@ from Modules.Module_Env import *
 class HaleyBot(commands.Bot):
     def __init__(self):
         super().__init__(
-            command_prefix='&',
+            command_prefix='.',
             intents=Intents.all(),
             enable_debug_events=True 
             # sync_command=True,

@@ -1,30 +1,47 @@
+import asyncio
 from Modules.Module_Basic import *
 # from Modules.Module_API import *
 from Modules.Module_SQL import *
 from Utils.sendLog import sendLogging
 
-class donation_btn(discord.ui.View):
+class question_btn(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
-    @discord.ui.button(label="도네이션 구매하기", style=discord.ButtonStyle.green, custom_id="ok_btn")
+    @discord.ui.button(label="문의 글 작성하기", style=discord.ButtonStyle.green, custom_id="ok_btn")
     async def donation_from(
         self, interaction: discord.Interaction, button: discord.ui.Button
     ):
         class modal(ui.Modal, title="아래의 항목에 정보를 작성해주세요."):
-            user_Name = ui.TextInput(
-                label="도네이션 텍스트",
-                style=discord.TextStyle.paragraph,
-                placeholder="와 엄청난 도네이션 인데요?",
+            question_title = ui.TextInput(
+                label="문의 글 제목",
+                style=discord.TextStyle.long,
+                placeholder="",
                 default="",
                 required=True,
                 max_length=50,
             )
 
+            question_content = ui.TextInput(
+                label="문의 내용",
+                style=discord.TextStyle.paragraph,
+                placeholder="",
+                default="",
+                required=True,
+                max_length=100,
+            )
+
             async def on_submit(self, interaction: Interaction) -> None:
+                category: CategoryChannel = interaction.guild.get_channel(1167826323939532881)
+                overwrites = {
+                    interaction.guild.default_role: PermissionOverwrite(read_messages=False, view_channel=False, send_messages=False),
+                    interaction.user: PermissionOverwrite(read_messages=True, view_channel=True, send_messages=True)
+                }
+                textChannel = await interaction.guild.create_text_channel(name=f"문의-{interaction.user.display_name}", category=category, overwrites=overwrites)
                 
+                await interaction.guild.get_channel(textChannel.id).send(f"작성자 : {interaction.user.mention}({interaction.user.id})\n질문 제목 : {self.question_title} \n### 질문 내용\n{self.question_content}")
                 await interaction.response.send_message(
-                    f"도네이션을 정상적으로 보냈습니다.",
+                    f"질문을 정상적으로 작성 하였습니다. \n질문 제목 : {self.question_title} \n### 질문 내용\n{self.question_content}",
                     ephemeral=True,
                 )
 
@@ -69,42 +86,46 @@ class users_cs(commands.Cog):
     #     await interaction.response.send_message(f"## 정상적으로 신청곡 신청이 완료 되었습니다! 스태프에게 전달 해놓을게요~~")
 
 
-    # @app_commands.command(name="도네이션", description="5코인으로 도네이션이 가능 합니다.")
-    # async def donationSend(self, interaction: Interaction):
-    #     await interaction.response.send_message(f"현재 준비중 입니다.", ephemeral=True)
-    #     view = donation_btn()
-    #     await interaction.response.send_message(f"아래의 버튼을 눌러 도네이션을 사용해 보세요!", ephemeral=True, view=view)
+    @app_commands.command(name="문의하기", description="운영팀에게 질문 할 수 있습니다.")
+    async def donationSend(self, interaction: Interaction):
+        # await interaction.response.send_message(f"현재 준비중 입니다.", ephemeral=True)
+        view = question_btn()
+        await interaction.response.send_message(f"## 질문 유의 사항 \n- 운영팀 모두가 보는 질문 입니다. \n- 문의 작성자와 운영팀이 있는 채널이 생성 됩니다.", ephemeral=True, view=view)
 
 
-    # @app_commands.command(name="테스트_보드리스트", description="보드리스트")
-    # async def testBoardList(self, interaction: Interaction):
-    #     if not interaction.user.guild_permissions.administrator:
-    #         await interaction.response.send_message("운영팀이 아닙니다.", ephemeral=True)
-    #     print(boardList)
-    #     await interaction.response.send_message(f"{boardList}", ephemeral=True)
-
-    @app_commands.command(name='테스트')
-    async def adminTest(self, interaction: Interaction):
+    @app_commands.command(name="문의_종료", description="질문 채널에서 종료가 가능 합니다.")
+    async def testBoardList(self, interaction: Interaction):
         if not interaction.user.guild_permissions.administrator:
             await interaction.response.send_message("운영팀이 아닙니다.", ephemeral=True)
+        try:
+            await interaction.response.send_message(f"문의가 3초 뒤 종료 됩니다.")
+            await asyncio.sleep(3)
+            await interaction.channel.delete()
+        except:
+            pass
+
+    # @app_commands.command(name='테스트')
+    # async def adminTest(self, interaction: Interaction):
+    #     if not interaction.user.guild_permissions.administrator:
+    #         await interaction.response.send_message("운영팀이 아닙니다.", ephemeral=True)
         
-        for user in interaction.guild.members:
-            try:
-                print(user.display_name.split('_'))
-                name = user.display_name.split('_')
-            except:
-                pass
-            db, SQL = get_SQL()
-            if db == False:
-                print("DB CONNECT ERROR")
-            try:
-                SQL.execute(
-                    f"UPDATE USER_DATA SET DISCORD_ID = '{user.id}' WHERE USER_NAME = '{name[1]}' and SCHOOL_TYPE = '{name[0]}'"
-                )
-                db.commit()
-                print(f'{name[0]} - {name[1]} 디스코드 아이디 업데이트 완료')
-            except Exception as e:
-                print(e)
+    #     for user in interaction.guild.members:
+    #         try:
+    #             print(user.display_name.split('_'))
+    #             name = user.display_name.split('_')
+    #         except:
+    #             pass
+    #         db, SQL = get_SQL()
+    #         if db == False:
+    #             print("DB CONNECT ERROR")
+    #         try:
+    #             SQL.execute(
+    #                 f"UPDATE USER_DATA SET DISCORD_ID = '{user.id}' WHERE USER_NAME = '{name[1]}' and SCHOOL_TYPE = '{name[0]}'"
+    #             )
+    #             db.commit()
+    #             print(f'{name[0]} - {name[1]} 디스코드 아이디 업데이트 완료')
+    #         except Exception as e:
+    #             print(e)
 
 
 async def setup(client: commands.Bot):
