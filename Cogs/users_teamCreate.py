@@ -2,6 +2,7 @@ from Modules.Module_Basic import *
 from Modules.Module_SQL import *
 from Utils.sendLog import sendLogging
 from Utils.randoms import randomNum
+from Utils.duplicates import check_multiple_duplicates
 from discord import PermissionOverwrite, CategoryChannel
 
 
@@ -14,25 +15,32 @@ class teamCreate(commands.Cog):
     @app_commands.describe(team_member_list="팀장을 빼고 팀원들만 입력 해주세요.")
     async def teamCreate(self, interaction: Interaction, team_title: str, team_member_list: str):
         members = list()
-        membersIds = list()
+        membersDiscordIds = list()
         _users = team_member_list.split()
 
         if len(_users) != 3:
-            await sendLogging(self.client, f"팀등록 - 4명의 팀원이 필요 합니다.\n팀명: {team_title} | 사용자 : {interaction.user.mention}({interaction.user.id})")
+            await sendLogging(self.client, f"팀등록 오류 - 4명의 팀원이 필요 합니다.\n팀명: {team_title} | 사용자 : {interaction.user.mention}({interaction.user.id})")
             return await interaction.response.send_message("4명 이상의 팀원이 필요합니다.", ephemeral=True)
     
         for users in _users:
             members.append(self.client.get_user(int(users.replace('<@', '').replace('>', ''))))
         
         for checkUser in members:
-            membersIds.append(checkUser.id)
+            membersDiscordIds.append(checkUser.id)
         
-        if interaction.user.id in membersIds:
-            await sendLogging(self.client, f"팀등록 - 팀장을 제외한 팀원만 작성해 주세요.\n팀명: {team_title} | 사용자 : {interaction.user.mention}({interaction.user.id})")
+        if interaction.user.id in membersDiscordIds:
+            await sendLogging(self.client, f"팀등록 오류 - 팀장을 제외한 팀원만 작성해 주세요.\n팀명: {team_title} | 사용자 : {interaction.user.mention}({interaction.user.id})")
             return await interaction.response.send_message("팀장을 제외한 팀원만 작성해 주세요.", ephemeral=True)
-        
+
         teamId = randomNum()
         members.append(interaction.user)
+
+        schoolTypeList = [get_schoolType(membersDiscordIds[0]), get_schoolType(membersDiscordIds[1]), get_schoolType(membersDiscordIds[2]), get_schoolType(membersDiscordIds[3])]
+        checkMultipleDuplicatesResult = check_multiple_duplicates(schoolTypeList)
+        if checkMultipleDuplicatesResult == False:
+            await sendLogging(self.client, f"팀등록 오류 - 같은학과가 2명 이상 중복 됨\n팀명: {team_title} | 사용자 : {interaction.user.mention}({interaction.user.id}) \n학과 리스트: {schoolTypeList}")
+            return await interaction.response.send_message("같은학과가 2명 이상 중복 되었습니다. 팀을 다시 구성해주세요.", ephemeral=True)
+
         result, resultMsg = await insertUserData(teamId=teamId, title=team_title, users=members)
         
         if result == True:

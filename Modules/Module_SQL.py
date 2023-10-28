@@ -67,7 +67,6 @@ def get_schoolType(discordId):
     except:
         return False
 
-
 def get_userName(discordId):
     db, SQL = get_SQL()
     if db == False:
