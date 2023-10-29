@@ -11,6 +11,22 @@ def get_SQL():
     except:
         return False, False
 
+
+@app.route('/delete/team-id/<teamId>', methods=['DELETE'])
+def deleteTeamId(teamId):
+    db, SQL = get_SQL()
+    if db == False:
+        return jsonify({"result": False, "msg": "DB CONNECT ERROR"})
+    
+    try:
+        SQL.execute(f"DELETE FROM TEAM_DATA WHERE teamId = '{teamId}'")
+        db.commit()
+        return jsonify({"result": True, "msg": f"{teamId} Delete"})
+    
+    except Exception as e:
+        return jsonify({"result": False, "msg": f"ERROR {e}"})
+
+
 @app.route('/sechan/holymoly/dbView/<dbName>')
 def dbView(dbName):
     db, SQL = get_SQL()
