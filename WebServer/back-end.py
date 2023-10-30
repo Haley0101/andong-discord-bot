@@ -27,6 +27,25 @@ def deleteTeamId(teamId):
         return jsonify({"result": False, "msg": f"ERROR {e}"})
 
 
+@app.route('/edit/team-name', methods=['POST'])
+def updateTeamName():
+    params = request.get_json()
+    teamId = params['teamId']
+    teamName = params['teamName']
+    
+    db, SQL = get_SQL()
+    if db == False:
+        return jsonify({"result": False, "msg": "DB CONNECT ERROR"})
+    
+    try:
+        SQL.execute(f"UPDATE TEAM_DATA SET teamName = '{teamName}' WHERE teamId = '{teamId}'")
+        db.commit()
+        return jsonify({"result": True, "msg": f"{teamId} {teamName} Update"})
+    
+    except Exception as e:
+        return jsonify({"result": False, "msg": f"ERROR {e}"})
+
+
 @app.route('/sechan/holymoly/dbView/<dbName>')
 def dbView(dbName):
     db, SQL = get_SQL()

@@ -33,8 +33,8 @@ class teamCreate(commands.Cog):
             return await interaction.response.send_message("팀장을 제외한 팀원만 작성해 주세요.", ephemeral=True)
 
         teamId = randomNum()
-        members.append(interaction.user)
-        membersDiscordIds.append(interaction.user.id)
+        members.insert(0, interaction.user)
+        membersDiscordIds.insert(0, interaction.user.id)
 
         schoolTypeList = [get_schoolType(membersDiscordIds[0]), get_schoolType(membersDiscordIds[1]), get_schoolType(membersDiscordIds[2]), get_schoolType(membersDiscordIds[3])]
         checkMultipleDuplicatesResult = check_multiple_duplicates(schoolTypeList)
