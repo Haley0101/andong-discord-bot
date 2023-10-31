@@ -38,7 +38,7 @@ def updateTeamName():
         return jsonify({"result": False, "msg": "DB CONNECT ERROR"})
     
     try:
-        SQL.execute(f"UPDATE TEAM_DATA SET teamName = '{teamName}' WHERE teamId = '{teamId}'")
+        SQL.execute(f"UPDATE TEAM_DATA SET teamTitle = '{teamName}' WHERE teamId = '{teamId}'")
         db.commit()
         return jsonify({"result": True, "msg": f"{teamId} {teamName} Update"})
     
