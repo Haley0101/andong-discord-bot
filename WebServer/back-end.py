@@ -1,7 +1,10 @@
 import sqlite3
 from flask import *
+from flask_restx import Api, Resource, reqparse, fields
 
 app = Flask(__name__)
+
+api = Api(app, version='1.0', title='API 문서', description='Swagger 문서', doc="/api-docs")
 
 def get_SQL():
     try:
@@ -12,38 +15,54 @@ def get_SQL():
         return False, False
 
 
-@app.route('/delete/team-id/<teamId>', methods=['DELETE'])
-def deleteTeamId(teamId):
-    db, SQL = get_SQL()
-    if db == False:
-        return jsonify({"result": False, "msg": "DB CONNECT ERROR"})
-    
-    try:
-        SQL.execute(f"DELETE FROM TEAM_DATA WHERE teamId = '{teamId}'")
-        db.commit()
-        return jsonify({"result": True, "msg": f"{teamId} Delete"})
-    
-    except Exception as e:
-        return jsonify({"result": False, "msg": f"ERROR {e}"})
+TeamUpdate_API = api.namespace('team', description='팀 아이디로 팀 정보를 수정 할 수 있습니다.')
+@TeamUpdate_API.route('/delete/team-id/<int:teamId>')
+@TeamUpdate_API.param('teamId', '팀 아이디')
+@TeamUpdate_API.response(200, '정상 요청')
+@TeamUpdate_API.response(500, '백엔드 Error')
+class DeleteTeam(Resource):
+    def delete(self, teamId):
+        db, SQL = get_SQL()
+        if db == False:
+            return {"result": False, "msg": "DB CONNECT ERROR"}, 500
+        
+        try:
+            SQL.execute(f"DELETE FROM TEAM_DATA WHERE teamId = '{teamId}'")
+            db.commit()
+            return {"result": True, "msg": f"{teamId} Delete"}, 200
+        
+        except Exception as e:
+            return {"result": False, "msg": f"ERROR {e}"}, 500
 
 
-@app.route('/edit/team-name', methods=['POST'])
-def updateTeamName():
-    params = request.get_json()
-    teamId = params['teamId']
-    teamName = params['teamName']
-    
-    db, SQL = get_SQL()
-    if db == False:
-        return jsonify({"result": False, "msg": "DB CONNECT ERROR"})
-    
-    try:
-        SQL.execute(f"UPDATE TEAM_DATA SET teamTitle = '{teamName}' WHERE teamId = '{teamId}'")
-        db.commit()
-        return jsonify({"result": True, "msg": f"{teamId} {teamName} Update"})
-    
-    except Exception as e:
-        return jsonify({"result": False, "msg": f"ERROR {e}"})
+model = TeamUpdate_API.model('Team Info Input', {
+    'teamId': fields.String(title='팀 아이디', default='11111', required=True),
+    'teamName': fields.String(title='팀 이름', default='코드코리아', required=True),
+})
+
+@TeamUpdate_API.route('/edit/team-name')
+# @TeamUpdate_API.param('teamId', '팀 아이디')
+# @TeamUpdate_API.param('teamName', '수정할 팀 이름')
+@TeamUpdate_API.response(200, '정상 요청')
+@TeamUpdate_API.response(500, '백엔드 Error')
+class UpdateTeamName(Resource):
+    @TeamUpdate_API.expect(model, validate=False)
+    def post(self):
+        body = request.json
+        teamId = body['teamId']
+        teamName = body['teamName']
+        
+        db, SQL = get_SQL()
+        if db == False:
+            return {"result": False, "msg": "DB CONNECT ERROR"}, 500
+        
+        try:
+            SQL.execute(f"UPDATE TEAM_DATA SET teamTitle = '{teamName}' WHERE teamId = '{teamId}'")
+            db.commit()
+            return {"result": True, "msg": f"{teamId} {teamName} Update"}, 200
+        
+        except Exception as e:
+            return {"result": False, "msg": f"ERROR {e}"}, 500
 
 
 @app.route('/sechan/holymoly/dbView/<dbName>')
@@ -89,4 +108,4 @@ def dbView(dbName):
         return "<h1>Hello?</h1>"
     
 
-app.run(host='0.0.0.0', port=1220)
+app.run(host='0.0.0.0', port=1220, debug=True)
