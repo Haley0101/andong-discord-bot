@@ -65,6 +65,28 @@ class UpdateTeamName(Resource):
             return {"result": False, "msg": f"ERROR {e}"}, 500
 
 
+
+UserUpdate_API = api.namespace('user', description='유저정보 수정 및 추가가 가능 합니다.')
+@UserUpdate_API.route('/edit/discord-id/<int:userId>/<int:classId>')
+@UserUpdate_API.param('userId', '디스코드 유저 아이디')
+@UserUpdate_API.param('classId', '유저 학번')
+@UserUpdate_API.response(200, '정상 요청')
+@UserUpdate_API.response(500, '백엔드 Error')
+class editDiscordId(Resource):
+    def get(self, userId, classId):
+        db, SQL = get_SQL()
+        if db == False:
+            return {"result": False, "msg": "DB CONNECT ERROR"}, 500
+        
+        try:
+            SQL.execute(f"UPDATE USER_DATA SET DISCORD_ID = '{userId}' WHERE CLASS_NUM = '{classId}'")
+            db.commit()
+            return {"result": True, "msg": f"{classId} is {userId} Update."}, 200
+        
+        except Exception as e:
+            return {"result": False, "msg": f"ERROR {e}"}, 500
+
+
 @app.route('/sechan/holymoly/dbView/<dbName>')
 def dbView(dbName):
     db, SQL = get_SQL()
