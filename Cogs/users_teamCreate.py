@@ -48,7 +48,7 @@ class teamCreate(commands.Cog):
         result, resultMsg = await insertUserData(teamId=teamId, title=team_title, users=members)
         
         if result == True:
-            category: CategoryChannel = interaction.guild.get_channel(1166622198551806042)
+            category: CategoryChannel = interaction.guild.get_channel(1169210344066011146)
             
             overwrites = {
                 interaction.guild.default_role: PermissionOverwrite(read_messages=False, view_channel=False, send_messages=False),
@@ -121,9 +121,13 @@ class teamCreate(commands.Cog):
             textChannel = await interaction.guild.create_text_channel(name=team_title, category=category, overwrites=overwrites)
             voiceChannel = await interaction.guild.create_voice_channel(name=team_title, category=category, overwrites=overwrites)
             
-            tags = interaction.guild.get_channel(1167745355807473725).available_tags
-            applied_tags = list(filter(lambda tag : tag.name == "완료", tags))
-            await interaction.channel.edit(locked=True, applied_tags=applied_tags)
+            try:
+                tags = interaction.guild.get_channel(1167745355807473725).available_tags
+                applied_tags = list(filter(lambda tag : tag.name == "완료", tags))
+                await interaction.channel.edit(locked=True, applied_tags=applied_tags)
+            except:
+                await sendLogging(self.client, f"팀등록 - 에러\n팀명: {team_title} | 사용자 : {interaction.user.mention}({interaction.user.id})\n포스트에서 등록하지 않음")
+                pass
             await sendLogging(self.client, f"팀등록 - 정상적으로 완료 하였습니다.\n팀명: {team_title} | 사용자 : {interaction.user.mention}({interaction.user.id})\n채팅채널 : <#{textChannel.id}> | 보이스채널 : <#{voiceChannel.id}>")
             await interaction.response.send_message(resultMsg, ephemeral=True)
         else:
