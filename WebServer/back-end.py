@@ -108,7 +108,7 @@ def dbView(dbName):
         return render_template('db_table.html', dbName=dbName, data_list=data_list)
     
     elif dbName == "team_data" or dbName == "TEAM_DATA" or dbName == "team-data":
-        SQL.execute("SELECT teamId, teamTitle, teamLeader, teamMember1, teamMember2, teamMember3 FROM TEAM_DATA ORDER BY teamTitle")
+        SQL.execute("SELECT teamId, teamTitle, teamLeader, teamMember1, teamMember2, teamMember3 FROM TEAM_DATA ORDER BY teamId")
         data = SQL.fetchall()  # 실행한 결과 데이터를 꺼냄
 
         data_list = []
